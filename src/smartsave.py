@@ -15,7 +15,6 @@ def maya_main_window():
     main_window = omui.MQtUtil.mainWindow()
     return wrapInstance(long(main_window), QtWidgets.QWidget)
 
-
 class SmartSaveUI(QtWidgets.QDialog):
     """Smart Class UI Class"""
 
@@ -48,10 +47,21 @@ class SmartSaveUI(QtWidgets.QDialog):
         """Connect Signals and Slots"""
         self.folder_browse_btn.clicked.connect(self._browse_folder)
         self.save_btn.clicked.connect(self._save)
+        self.save_increment_btn.clicked.connect(self._save_increment)
+
+    @QtCore.Slot()
+    def _save_increment(self):
+        """Save an Increment of the scene"""
+        self._set_scenefile_properties_from_ui()
+        self.scenefile.save_increment()
+        self.ver_sbx.setValue(self.scenefile.ver)
 
     @QtCore.Slot()
     def _save(self):
         """Save the scene"""
+        self._set_scenefile_properties_from_ui()
+
+    def _set_scenefile_properties_from_ui(self):
         self.scenefile.folder_path = self.folder_le.text()
         self.scenefile.descriptor = self.descriptor_le.text()
         self.scenefile.task = self.task_le.text()
@@ -118,7 +128,6 @@ class SmartSaveUI(QtWidgets.QDialog):
         layout.addWidget(self.folder_le)
         layout.addWidget(self.folder_browse_btn)
         return layout
-
 
 class SceneFile(object):
     """An abstract representation of a SceneFile"""
@@ -193,10 +202,7 @@ class SceneFile(object):
         latest_version_num = int(latest_scenefile.split("_v")[-1])
         return latest_version_num + 1
 
-
-
-
-    def increment_save(self):
+    def save_increment(self):
         """Increments the version and saves the scene file.
 
         If the existing version of the file already exist, it should increment
